@@ -54,6 +54,9 @@ param identityName string = ''
 @allowed([ 'None', 'SystemAssigned', 'UserAssigned' ])
 param identityType string = 'None'
 
+@description('Whether to create the managed identity locally or reference an existing one')
+param createIdentity bool = true
+
 @description('The name of the container image')
 param imageName string = ''
 
@@ -77,7 +80,12 @@ param serviceType string = ''
 @description('The target port for the container')
 param targetPort int = 80
 
-resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (!empty(identityName)) {
+resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (!empty(identityName) && createIdentity) {
+  name: identityName
+  location: location
+}
+
+resource existingUserIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (!empty(identityName) && !createIdentity) {
   name: identityName
 }
 
@@ -87,11 +95,15 @@ var usePrivateRegistry = !empty(identityName) && !empty(containerRegistryName)
 // Automatically set to `UserAssigned` when an `identityName` has been set
 var normalizedIdentityType = !empty(identityName) ? 'UserAssigned' : identityType
 
+// Get the identity ID based on whether we created it or it's existing
+var identityId = !empty(identityName) ? (createIdentity ? userIdentity.id : existingUserIdentity.id) : ''
+var identityPrincipalId = !empty(identityName) ? (createIdentity ? userIdentity.properties.principalId : existingUserIdentity.properties.principalId) : ''
+
 module containerRegistryAccess '../security/registry-access.bicep' = if (usePrivateRegistry) {
   name: '${deployment().name}-registry-access'
   params: {
     containerRegistryName: containerRegistryName
-    principalId: usePrivateRegistry ? userIdentity.properties.principalId : ''
+    principalId: usePrivateRegistry ? identityPrincipalId : ''
   }
 }
 
@@ -106,7 +118,7 @@ resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
   dependsOn: empty(dependOn)? [] : [dependOn]
   identity: {
     type: normalizedIdentityType
-    userAssignedIdentities: !empty(identityName) && normalizedIdentityType == 'UserAssigned' ? { '${userIdentity.id}': {} } : null
+    userAssignedIdentities: !empty(identityName) && normalizedIdentityType == 'UserAssigned' ? { '${identityId}': {} } : null
   }
   properties: {
     managedEnvironmentId: containerAppsEnvironment.id
@@ -134,7 +146,7 @@ resource app 'Microsoft.App/containerApps@2023-05-02-preview' = {
       registries: usePrivateRegistry ? [
         {
           server: '${containerRegistryName}.${containerRegistryHostSuffix}'
-          identity: userIdentity.id
+          identity: identityId
         }
       ] : []
     }
@@ -164,7 +176,7 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01'
 }
 
 output defaultDomain string = containerAppsEnvironment.properties.defaultDomain
-output identityPrincipalId string = normalizedIdentityType == 'None' ? '' : (empty(identityName) ? app.identity.principalId : userIdentity.properties.principalId)
+output identityPrincipalId string = normalizedIdentityType == 'None' ? '' : (empty(identityName) ? app.identity.principalId : identityPrincipalId)
 output name string = app.name
 output serviceBind object = !empty(serviceType) ? { serviceId: app.id, name: name } : {}
 output uri string = ingressEnabled ? 'https://${app.properties.configuration.ingress.fqdn}' : ''
