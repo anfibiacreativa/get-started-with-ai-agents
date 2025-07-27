@@ -5,6 +5,12 @@ param location string = resourceGroup().location
 param tags object = {}
 param logAnalyticsWorkspaceId string
 
+resource applicationInsightsIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${name}-identity'
+  location: location
+  tags: tags
+}
+
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: name
   location: location
@@ -29,3 +35,4 @@ output connectionString string = applicationInsights.properties.ConnectionString
 output id string = applicationInsights.id
 output instrumentationKey string = applicationInsights.properties.InstrumentationKey
 output name string = applicationInsights.name
+output identityPrincipalId string = applicationInsightsIdentity.properties.principalId
