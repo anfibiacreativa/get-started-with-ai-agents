@@ -75,6 +75,13 @@ resource existingApp 'Microsoft.App/containerApps@2023-05-02-preview' existing =
   name: name
 }
 
+// Create user-assigned managed identity when identityType is UserAssigned and identityName is provided
+resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (identityType == 'UserAssigned' && !empty(identityName)) {
+  name: identityName
+  location: location
+  tags: tags
+}
+
 module app 'container-app.bicep' = {
   name: '${deployment().name}-update'
   params: {
