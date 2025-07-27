@@ -8,7 +8,7 @@ param environmentName string
 @description('Location for all resources')
 // Based on the model, creating an agent is not supported in all regions. 
 // The combination of allowed and usageName below is for AZD to check AI model gpt-4o-mini quota only for the allowed regions for creating an agent.
-// If using different models, update the SKU,capacity depending on the model you use.
+// Using current GPT-4o-mini model (not deprecated GPT-4). If using different models, update the SKU,capacity depending on the model you use.
 // https://learn.microsoft.com/azure/ai-services/agents/concepts/model-region-support
 @allowed([
   'eastus'
@@ -20,7 +20,7 @@ param environmentName string
 @metadata({
   azd: {
     type: 'location'
-    // quota-validation for ai models: gpt-4o-mini
+    // quota-validation for ai models: current gpt-4o-mini (not deprecated gpt-4)
     usageName: [
       'OpenAI.GlobalStandard.gpt-4o-mini,80'
     ]
@@ -51,7 +51,7 @@ param logAnalyticsWorkspaceName string = ''
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
 
-// Chat completion model
+// Chat completion model - using current GPT-4o-mini (not deprecated GPT-4)
 @description('Format of the chat model to deploy')
 @allowed(['Microsoft', 'OpenAI'])
 param agentModelFormat string = 'OpenAI'
@@ -61,14 +61,15 @@ param agentName string = 'agent-template-assistant'
 param aiAgentID string = ''
 @description('ID of the existing agent')
 param azureExistingAgentId string = ''
-@description('Name of the chat model to deploy')
+@description('Name of the chat model to deploy - uses current GPT-4o-mini model, not deprecated GPT-4')
 param agentModelName string = 'gpt-4o-mini'
-@description('Name of the model deployment')
+@description('Name of the model deployment - uses current GPT-4o-mini model, not deprecated GPT-4')
 param agentDeploymentName string = 'gpt-4o-mini'
 
-@description('Version of the chat model to deploy')
+@description('Version of the chat model to deploy - using current GPT-4o-mini version, not deprecated GPT-4')
 // See version availability in this table:
 // https://learn.microsoft.com/azure/ai-services/openai/concepts/models#global-standard-model-availability
+// Using 2024-07-18 version of GPT-4o-mini (current supported model, not deprecated GPT-4)
 param agentModelVersion string = '2024-07-18'
 
 @description('Sku of the chat deployment')
