@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.177.2456",
-      "templateHash": "6799050864532564054"
+      "templateHash": "5667868311762126115"
     },
     "description": "Creates a Log Analytics workspace."
   },
@@ -20,9 +20,24 @@
     "tags": {
       "type": "object",
       "defaultValue": {}
+    },
+    "identityName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the user-assigned identity for the Log Analytics workspace"
+      }
     }
   },
   "resources": [
+    {
+      "condition": "[not(empty(parameters('identityName')))]",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[parameters('identityName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]"
+    },
     {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2021-12-01-preview",
@@ -48,6 +63,10 @@
     "name": {
       "type": "string",
       "value": "[parameters('name')]"
+    },
+    "identityPrincipalId": {
+      "type": "string",
+      "value": "[if(not(empty(parameters('identityName'))), reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2023-01-31').principalId, '')]"
     }
   }
 }
