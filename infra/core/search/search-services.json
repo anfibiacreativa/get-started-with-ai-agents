@@ -1,0 +1,172 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.36.177.2456",
+      "templateHash": "16411726781263039033"
+    },
+    "description": "Creates an Azure AI Search instance."
+  },
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "serviceName": {
+      "type": "string"
+    },
+    "sku": {
+      "type": "object",
+      "defaultValue": {
+        "name": "standard"
+      }
+    },
+    "authOptions": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "disableLocalAuth": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "disabledDataExfiltrationOptions": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "encryptionWithCmk": {
+      "type": "object",
+      "defaultValue": {
+        "enforcement": "Unspecified"
+      }
+    },
+    "hostingMode": {
+      "type": "string",
+      "defaultValue": "default",
+      "allowedValues": [
+        "default",
+        "highDensity"
+      ]
+    },
+    "networkRuleSet": {
+      "type": "object",
+      "defaultValue": {
+        "bypass": "None",
+        "ipRules": []
+      }
+    },
+    "partitionCount": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "publicNetworkAccess": {
+      "type": "string",
+      "defaultValue": "enabled",
+      "allowedValues": [
+        "enabled",
+        "disabled"
+      ]
+    },
+    "replicaCount": {
+      "type": "int",
+      "defaultValue": 1
+    },
+    "semanticSearch": {
+      "type": "string",
+      "defaultValue": "disabled",
+      "allowedValues": [
+        "disabled",
+        "free",
+        "standard"
+      ]
+    }
+  },
+  "variables": {
+    "searchIdentityProvider": "[if(equals(parameters('sku').name, 'free'), null(), createObject('type', 'UserAssigned', 'userAssignedIdentities', createObject(format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('name')))), createObject())))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.CognitiveServices/accounts/projects/connections",
+      "apiVersion": "2025-04-01-preview",
+      "name": "[format('{0}/{1}/{2}', parameters('serviceName'), parameters('projectName'), 'searchConnection')]",
+      "properties": {
+        "category": "CognitiveSearch",
+        "authType": "ApiKey",
+        "isSharedToAll": true,
+        "target": "[format('https://{0}.search.windows.net/', parameters('name'))]",
+        "credentials": {
+          "key": "[listAdminKeys(resourceId('Microsoft.Search/searchServices', parameters('name')), '2024-06-01-preview').primaryKey]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Search/searchServices', parameters('name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[format('{0}-identity', parameters('name'))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]"
+    },
+    {
+      "type": "Microsoft.Search/searchServices",
+      "apiVersion": "2024-06-01-preview",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "basic"
+      },
+      "identity": "[variables('searchIdentityProvider')]",
+      "properties": {
+        "authOptions": "[parameters('authOptions')]",
+        "disableLocalAuth": "[parameters('disableLocalAuth')]",
+        "disabledDataExfiltrationOptions": "[parameters('disabledDataExfiltrationOptions')]",
+        "encryptionWithCmk": "[parameters('encryptionWithCmk')]",
+        "hostingMode": "[parameters('hostingMode')]",
+        "networkRuleSet": "[parameters('networkRuleSet')]",
+        "partitionCount": "[parameters('partitionCount')]",
+        "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
+        "replicaCount": "[parameters('replicaCount')]",
+        "semanticSearch": "[parameters('semanticSearch')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('name')))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Search/searchServices', parameters('name'))]"
+    },
+    "endpoint": {
+      "type": "string",
+      "value": "[format('https://{0}.search.windows.net/', parameters('name'))]"
+    },
+    "name": {
+      "type": "string",
+      "value": "[parameters('name')]"
+    },
+    "principalId": {
+      "type": "string",
+      "value": "[if(not(empty(variables('searchIdentityProvider'))), reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('name'))), '2023-01-31').principalId, '')]"
+    },
+    "searchConnectionId": {
+      "type": "string",
+      "value": ""
+    }
+  }
+}
