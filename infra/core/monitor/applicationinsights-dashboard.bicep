@@ -4,6 +4,13 @@ param applicationInsightsName string
 param location string = resourceGroup().location
 param tags object = {}
 
+// User-assigned managed identity for the dashboard
+resource dashboardIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${name}-identity'
+  location: location
+  tags: tags
+}
+
 // 2020-09-01-preview because that is the latest valid version
 resource applicationInsightsDashboard 'Microsoft.Portal/dashboards@2020-09-01-preview' = {
   name: name
@@ -1234,3 +1241,7 @@ resource applicationInsightsDashboard 'Microsoft.Portal/dashboards@2020-09-01-pr
 resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: applicationInsightsName
 }
+
+output dashboardId string = applicationInsightsDashboard.id
+output identityId string = dashboardIdentity.id
+output identityPrincipalId string = dashboardIdentity.properties.principalId
