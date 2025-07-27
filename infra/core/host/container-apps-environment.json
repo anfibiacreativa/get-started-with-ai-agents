@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.177.2456",
-      "templateHash": "2752869305972816250"
+      "templateHash": "11470868957459138150"
     },
     "description": "Creates an Azure Container Apps environment."
   },
@@ -40,9 +40,24 @@
       "metadata": {
         "description": "Name of the Log Analytics workspace"
       }
+    },
+    "identityName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Name of the user-assigned managed identity for the Container Apps environment"
+      }
     }
   },
   "resources": [
+    {
+      "condition": "[not(empty(parameters('identityName')))]",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[parameters('identityName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]"
+    },
     {
       "type": "Microsoft.App/managedEnvironments",
       "apiVersion": "2023-05-01",
@@ -73,6 +88,14 @@
     "name": {
       "type": "string",
       "value": "[parameters('name')]"
+    },
+    "identityPrincipalId": {
+      "type": "string",
+      "value": "[if(not(empty(parameters('identityName'))), reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2023-01-31').principalId, '')]"
+    },
+    "identityId": {
+      "type": "string",
+      "value": "[if(not(empty(parameters('identityName'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '')]"
     }
   }
 }

@@ -12,6 +12,15 @@ param daprEnabled bool = false
 @description('Name of the Log Analytics workspace')
 param logAnalyticsWorkspaceName string
 
+@description('Name of the user-assigned managed identity for the Container Apps environment')
+param identityName string = ''
+
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (!empty(identityName)) {
+  name: identityName
+  location: location
+  tags: tags
+}
+
 resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' = {
   name: name
   location: location
@@ -39,3 +48,5 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing
 output defaultDomain string = containerAppsEnvironment.properties.defaultDomain
 output id string = containerAppsEnvironment.id
 output name string = containerAppsEnvironment.name
+output identityPrincipalId string = !empty(identityName) ? managedIdentity.properties.principalId : ''
+output identityId string = !empty(identityName) ? managedIdentity.id : ''
