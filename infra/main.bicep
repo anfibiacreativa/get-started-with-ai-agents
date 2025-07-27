@@ -171,6 +171,17 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   tags: tags
 }
 
+// Managed identity for the API service
+module apiIdentityModule 'core/identity/managed-identity.bicep' = {
+  name: 'api-identity'
+  scope: rg
+  params: {
+    name: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
+    location: location
+    tags: tags
+  }
+}
+
 var logAnalyticsWorkspaceResolvedName = !useApplicationInsights
   ? ''
   : !empty(logAnalyticsWorkspaceName)
@@ -238,7 +249,7 @@ module monitoringMetricsContribuitorRoleAzureAIDeveloperRG 'core/security/appins
   params: {
     principalType: 'ServicePrincipal'
     appInsightsName: resolvedApplicationInsightsName
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: apiIdentityModule.outputs.principalId
   }
 }
 
@@ -251,7 +262,7 @@ module userRoleAzureAIDeveloperBackendExistingProjectRG 'core/security/role.bice
   scope: existingProjectRG
   params: {
     principalType: 'ServicePrincipal'
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: apiIdentityModule.outputs.principalId
     roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee' 
   }
 }
@@ -281,7 +292,7 @@ module api 'api.bicep' = {
     name: 'ca-api-${resourceToken}'
     location: location
     tags: tags
-    identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
+    identityName: apiIdentityModule.outputs.name
     containerAppsEnvironmentName: containerApps.outputs.environmentName
     azureExistingAIProjectResourceId: projectResourceId
     containerRegistryName: containerApps.outputs.registryName
@@ -336,7 +347,7 @@ module backendCognitiveServicesUser  'core/security/role.bicep' = if (empty(azur
   scope: rg
   params: {
     principalType: 'ServicePrincipal'
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: apiIdentityModule.outputs.principalId
     roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
   }
 }
@@ -346,7 +357,7 @@ module backendCognitiveServicesUser2  'core/security/role.bicep' = if (!empty(az
   scope: existingProjectRG
   params: {
     principalType: 'ServicePrincipal'
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: apiIdentityModule.outputs.principalId
     roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
   }
 }
@@ -357,7 +368,7 @@ module backendRoleSearchIndexDataContributorRG 'core/security/role.bicep' = if (
   scope: rg
   params: {
     principalType: 'ServicePrincipal'
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: apiIdentityModule.outputs.principalId
     roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
   }
 }
@@ -367,7 +378,7 @@ module backendRoleSearchIndexDataReaderRG 'core/security/role.bicep' = if (useSe
   scope: rg
   params: {
     principalType: 'ServicePrincipal'
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: apiIdentityModule.outputs.principalId
     roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
   }
 }
@@ -377,7 +388,7 @@ module backendRoleSearchServiceContributorRG 'core/security/role.bicep' = if (us
   scope: rg
   params: {
     principalType: 'ServicePrincipal'
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: apiIdentityModule.outputs.principalId
     roleDefinitionId: '7ca78c08-252a-4471-8644-bb5ff32d4ba0'
   }
 }
@@ -417,7 +428,7 @@ module backendRoleAzureAIDeveloperRG 'core/security/role.bicep' = {
   scope: rg
   params: {
     principalType: 'ServicePrincipal'
-    principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    principalId: apiIdentityModule.outputs.principalId
     roleDefinitionId: '64702f94-c441-49e6-a78b-ef80e0188fee'
   }
 }
@@ -441,7 +452,7 @@ output AZURE_TRACING_GEN_AI_CONTENT_RECORDING_ENABLED bool = azureTracingGenAICo
 
 // Outputs required by azd for ACA
 output AZURE_CONTAINER_ENVIRONMENT_NAME string = containerApps.outputs.environmentName
-output SERVICE_API_IDENTITY_PRINCIPAL_ID string = api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+output SERVICE_API_IDENTITY_PRINCIPAL_ID string = apiIdentityModule.outputs.principalId
 output SERVICE_API_NAME string = api.outputs.SERVICE_API_NAME
 output SERVICE_API_URI string = api.outputs.SERVICE_API_URI
 output SERVICE_API_ENDPOINTS array = ['${api.outputs.SERVICE_API_URI}']

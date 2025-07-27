@@ -18,9 +18,8 @@ param enableAzureMonitorTracing bool
 param azureTracingGenAIContentRecordingEnabled bool
 param projectEndpoint string
 
-resource apiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+resource apiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
   name: identityName
-  location: location
 }
 
 var env = [
