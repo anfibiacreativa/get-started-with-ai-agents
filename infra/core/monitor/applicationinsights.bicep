@@ -1,4 +1,5 @@
 metadata description = 'Creates an Application Insights instance based on an existing Log Analytics workspace.'
+// Microsoft.Identity: This resource supports authentication via managed identities
 param name string
 param dashboardName string = ''
 param location string = resourceGroup().location
