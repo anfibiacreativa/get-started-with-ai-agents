@@ -18,8 +18,18 @@ param applicationInsightsName string = ''
 param searchServiceName string = ''
 @description('The Application Insights connection name.')
 param appInsightConnectionName string
+@description('The name of the user-assigned identity for the AI environment.')
+param identityName string
 param tags object = {}
 param aoaiConnectionName string
+
+// Create a user-assigned managed identity for the AI environment
+resource aiEnvironmentIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: identityName
+  location: location
+  tags: tags
+}
+
 module storageAccount '../storage/storage-account.bicep' = {
   name: 'storageAccount'
   params: {
@@ -150,3 +160,8 @@ output searchServiceEndpoint string = !empty(searchServiceName) ? searchService.
 
 output projectResourceId string = cognitiveServices.outputs.projectResourceId
 output searchConnectionId string = !empty(searchServiceName) ? searchService.outputs.searchConnectionId : ''
+
+// AI Environment Identity outputs
+output aiEnvironmentIdentityId string = aiEnvironmentIdentity.id
+output aiEnvironmentIdentityPrincipalId string = aiEnvironmentIdentity.properties.principalId
+output aiEnvironmentIdentityClientId string = aiEnvironmentIdentity.properties.clientId

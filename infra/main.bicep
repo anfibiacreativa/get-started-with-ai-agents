@@ -201,6 +201,7 @@ module ai 'core/host/ai-environment.bicep' = if (empty(azureExistingAIProjectRes
     searchServiceName: resolvedSearchServiceName
     appInsightConnectionName: 'appinsights-connection'
     aoaiConnectionName: 'aoai-connection'
+    identityName: '${abbrs.managedIdentityUserAssignedIdentities}ai-${resourceToken}'
   }
 }
 
