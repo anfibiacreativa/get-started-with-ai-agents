@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.177.2456",
-      "templateHash": "4868161292318745629"
+      "templateHash": "1437925523372515851"
     },
     "description": "Creates an Azure Cognitive Services instance."
   },
@@ -57,6 +57,10 @@
     "storageAccountConnectionName": {
       "type": "string"
     },
+    "identityName": {
+      "type": "string",
+      "defaultValue": ""
+    },
     "publicNetworkAccess": {
       "type": "string",
       "defaultValue": "Enabled",
@@ -81,6 +85,13 @@
     }
   },
   "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[if(not(empty(parameters('identityName'))), parameters('identityName'), format('{0}-identity', parameters('aiServiceName')))]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]"
+    },
     {
       "type": "Microsoft.CognitiveServices/accounts",
       "apiVersion": "2025-04-01-preview",
@@ -238,6 +249,18 @@
     "projectPrincipalId": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts/projects', parameters('aiServiceName'), parameters('aiProjectName')), '2025-04-01-preview', 'full').identity.principalId]"
+    },
+    "userAssignedIdentityName": {
+      "type": "string",
+      "value": "[if(not(empty(parameters('identityName'))), parameters('identityName'), format('{0}-identity', parameters('aiServiceName')))]"
+    },
+    "userAssignedIdentityPrincipalId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', if(not(empty(parameters('identityName'))), parameters('identityName'), format('{0}-identity', parameters('aiServiceName')))), '2023-01-31').principalId]"
+    },
+    "userAssignedIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', if(not(empty(parameters('identityName'))), parameters('identityName'), format('{0}-identity', parameters('aiServiceName')))), '2023-01-31').clientId]"
     }
   }
 }

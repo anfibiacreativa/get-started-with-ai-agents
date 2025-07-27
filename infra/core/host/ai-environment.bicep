@@ -93,6 +93,7 @@ module cognitiveServices '../ai/cognitiveservices.bicep' = {
     storageAccountId: storageAccount.outputs.id
     storageAccountConnectionName: storageAccount.outputs.name
     aoaiConnectionName: aoaiConnectionName
+    identityName: '${aiServicesName}-identity'
   }
 }
 
@@ -143,6 +144,8 @@ output aiServiceId string = cognitiveServices.outputs.id
 output aiServicesName string = cognitiveServices.outputs.name
 output aiProjectEndpoint string = cognitiveServices.outputs.projectEndpoint
 output aiServicePrincipalId string = cognitiveServices.outputs.accountPrincipalId
+output aiServiceUserAssignedIdentityName string = cognitiveServices.outputs.userAssignedIdentityName
+output aiServiceUserAssignedIdentityPrincipalId string = cognitiveServices.outputs.userAssignedIdentityPrincipalId
 
 output searchServiceId string = !empty(searchServiceName) ? searchService.outputs.id : ''
 output searchServiceName string = !empty(searchServiceName) ? searchService.outputs.name : ''
