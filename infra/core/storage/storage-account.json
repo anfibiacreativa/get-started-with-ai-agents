@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.177.2456",
-      "templateHash": "3799396535311334396"
+      "templateHash": "13355878034138245059"
     },
     "description": "Creates an Azure storage account."
   },
@@ -207,6 +207,9 @@
       "tags": "[parameters('tags')]",
       "kind": "[parameters('kind')]",
       "sku": "[parameters('sku')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
       "properties": {
         "accessTier": "[parameters('accessTier')]",
         "allowBlobPublicAccess": "[parameters('allowBlobPublicAccess')]",
@@ -233,6 +236,10 @@
     "primaryEndpoints": {
       "type": "object",
       "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), '2023-01-01').primaryEndpoints]"
+    },
+    "principalId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), '2023-01-01', 'full').identity.principalId]"
     }
   }
 }
