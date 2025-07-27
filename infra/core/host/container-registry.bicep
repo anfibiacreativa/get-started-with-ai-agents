@@ -73,12 +73,33 @@ param zoneRedundancy string = 'Disabled'
 @description('The log analytics workspace ID used for logging and monitoring')
 param workspaceId string = ''
 
+@description('The name of the user-assigned identity')
+param identityName string = ''
+
+@description('The type of identity for the resource')
+@allowed([ 'None', 'SystemAssigned', 'UserAssigned' ])
+param identityType string = 'None'
+
+// Create user-assigned managed identity when specified
+resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (!empty(identityName)) {
+  name: identityName
+  location: location
+  tags: tags
+}
+
+// Automatically set to `UserAssigned` when an `identityName` has been set
+var normalizedIdentityType = !empty(identityName) ? 'UserAssigned' : identityType
+
 // 2023-11-01-preview needed for metadataSearch
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: name
   location: location
   tags: tags
   sku: sku
+  identity: normalizedIdentityType != 'None' ? {
+    type: normalizedIdentityType
+    userAssignedIdentities: !empty(identityName) && normalizedIdentityType == 'UserAssigned' ? { '${userIdentity.id}': {} } : null
+  } : null
   properties: {
     adminUserEnabled: adminUserEnabled
     anonymousPullEnabled: anonymousPullEnabled
@@ -135,3 +156,5 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' 
 output id string = containerRegistry.id
 output loginServer string = containerRegistry.properties.loginServer
 output name string = containerRegistry.name
+output identityPrincipalId string = normalizedIdentityType == 'None' ? '' : (empty(identityName) ? containerRegistry.identity.principalId : userIdentity.properties.principalId)
+output identityClientId string = normalizedIdentityType == 'UserAssigned' && !empty(identityName) ? userIdentity.properties.clientId : ''
