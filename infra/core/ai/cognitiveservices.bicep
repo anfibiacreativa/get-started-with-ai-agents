@@ -13,6 +13,7 @@ param appInsightConnectionName string
 param aoaiConnectionName string
 param storageAccountId string
 param storageAccountConnectionName string
+param identityName string = ''
 
 @allowed([ 'Enabled', 'Disabled' ])
 param publicNetworkAccess string = 'Enabled'
@@ -26,6 +27,13 @@ param networkAcls object = empty(allowedIpRules) ? {
 } : {
   ipRules: allowedIpRules
   defaultAction: 'Deny'
+}
+
+// User-assigned managed identity for the AI services
+resource aiServicesIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: !empty(identityName) ? identityName : '${aiServiceName}-identity'
+  location: location
+  tags: tags
 }
 
 resource account 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' = {
@@ -138,3 +146,6 @@ output projectEndpoint string = aiProject.properties.endpoints['AI Foundry API']
 output PrincipalId string = account.identity.principalId
 output accountPrincipalId string = account.identity.principalId
 output projectPrincipalId string = aiProject.identity.principalId
+output userAssignedIdentityName string = aiServicesIdentity.name
+output userAssignedIdentityPrincipalId string = aiServicesIdentity.properties.principalId
+output userAssignedIdentityClientId string = aiServicesIdentity.properties.clientId
