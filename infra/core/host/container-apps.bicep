@@ -8,6 +8,13 @@ param containerRegistryName string
 param containerRegistryAdminUserEnabled bool = false
 param logAnalyticsWorkspaceName string
 param applicationInsightsName string = ''
+param identityName string = ''
+
+resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = if (!empty(identityName)) {
+  name: identityName
+  location: location
+  tags: tags
+}
 
 module containerAppsEnvironment 'container-apps-environment.bicep' = {
   name: '${name}-container-apps-environment'
@@ -37,3 +44,7 @@ output environmentId string = containerAppsEnvironment.outputs.id
 
 output registryLoginServer string = containerRegistry.outputs.loginServer
 output registryName string = containerRegistry.outputs.name
+
+output identityPrincipalId string = empty(identityName) ? '' : userIdentity.properties.principalId
+output identityClientId string = empty(identityName) ? '' : userIdentity.properties.clientId
+output identityName string = empty(identityName) ? '' : userIdentity.name
