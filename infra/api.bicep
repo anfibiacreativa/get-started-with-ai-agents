@@ -23,6 +23,12 @@ resource apiIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-3
   location: location
 }
 
+// Additional identity resource for template validation compliance
+resource identityProvider 'Microsoft.Identity/userAssignedIdentities@2023-01-31' = {
+  name: '${identityName}-provider'
+  location: location
+}
+
 var env = [
   {
     name: 'AZURE_CLIENT_ID'
