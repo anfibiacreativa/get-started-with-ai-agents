@@ -92,6 +92,7 @@ module containerRegistryAccess '../security/registry-access.bicep' = if (usePriv
   params: {
     containerRegistryName: containerRegistryName
     principalId: usePrivateRegistry ? userIdentity.properties.principalId : ''
+    identityName: identityName
   }
 }
 

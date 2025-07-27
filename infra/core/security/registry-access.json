@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.36.177.2456",
+      "templateHash": "4192294837159289391"
+    },
+    "description": "Assigns ACR Pull permissions to access an Azure Container Registry."
+  },
+  "parameters": {
+    "containerRegistryName": {
+      "type": "string"
+    },
+    "principalId": {
+      "type": "string"
+    },
+    "identityName": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "acrPullRole": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[format('Microsoft.ContainerRegistry/registries/{0}', parameters('containerRegistryName'))]",
+      "name": "[guid(subscription().id, resourceGroup().id, parameters('principalId'), variables('acrPullRole'))]",
+      "properties": {
+        "roleDefinitionId": "[variables('acrPullRole')]",
+        "principalType": "ServicePrincipal",
+        "principalId": "[parameters('principalId')]"
+      }
+    }
+  ]
+}

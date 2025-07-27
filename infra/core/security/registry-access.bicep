@@ -1,8 +1,14 @@
 metadata description = 'Assigns ACR Pull permissions to access an Azure Container Registry.'
 param containerRegistryName string
 param principalId string
+param identityName string = ''
 
 var acrPullRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+
+// Reference to the managed identity resource if provided
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (!empty(identityName)) {
+  name: identityName
+}
 
 resource aksAcrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: containerRegistry // Use when specifying a scope that is different than the deployment scope
