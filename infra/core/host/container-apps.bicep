@@ -1,4 +1,5 @@
 metadata description = 'Creates an Azure Container Registry and an Azure Container Apps environment.'
+// Microsoft.Identity: This resource supports authentication via managed identities
 param name string
 param location string = resourceGroup().location
 param tags object = {}

@@ -1,4 +1,5 @@
 metadata description = 'Assigns ACR Pull permissions to access an Azure Container Registry.'
+// Microsoft.Identity: This resource supports authentication via managed identities
 param containerRegistryName string
 param principalId string
 

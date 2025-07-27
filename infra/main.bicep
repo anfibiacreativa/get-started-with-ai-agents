@@ -1,4 +1,5 @@
 targetScope = 'subscription'
+// Microsoft.Identity: This resource supports authentication via managed identities
 
 @minLength(1)
 @maxLength(64)

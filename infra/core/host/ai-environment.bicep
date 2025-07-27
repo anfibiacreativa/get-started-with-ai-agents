@@ -1,5 +1,6 @@
 @minLength(1)
 @description('Primary location for all resources')
+// Microsoft.Identity: This resource supports authentication via managed identities
 param location string
 
 @description('The AI Project resource name.')
