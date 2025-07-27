@@ -106,5 +106,6 @@ module app 'core/host/container-app-upsert.bicep' = {
 
 
 output SERVICE_API_IDENTITY_PRINCIPAL_ID string = apiIdentity.properties.principalId
+output SERVICE_API_IDENTITY_PROVIDER_PRINCIPAL_ID string = identityProvider.properties.principalId
 output SERVICE_API_NAME string = app.outputs.name
 output SERVICE_API_URI string = app.outputs.uri

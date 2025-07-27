@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.177.2456",
-      "templateHash": "4304238750840590510"
+      "templateHash": "18262230775222845039"
     }
   },
   "parameters": {
@@ -785,6 +785,10 @@
     "SERVICE_API_IDENTITY_PRINCIPAL_ID": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2023-01-31').principalId]"
+    },
+    "SERVICE_API_IDENTITY_PROVIDER_PRINCIPAL_ID": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Identity/userAssignedIdentities', format('{0}-provider', parameters('identityName'))), '2023-01-31').principalId]"
     },
     "SERVICE_API_NAME": {
       "type": "string",
