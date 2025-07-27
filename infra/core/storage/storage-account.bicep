@@ -38,6 +38,9 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   tags: tags
   kind: kind
   sku: sku
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     accessTier: accessTier
     allowBlobPublicAccess: allowBlobPublicAccess
@@ -99,3 +102,4 @@ resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
 output id string = storage.id
 output name string = storage.name
 output primaryEndpoints object = storage.properties.primaryEndpoints
+output principalId string = storage.identity.principalId
