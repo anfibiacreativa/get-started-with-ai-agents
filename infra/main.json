@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.177.2456",
-      "templateHash": "13244674486386591695"
+      "templateHash": "12944132291933850360"
     }
   },
   "parameters": {
@@ -502,7 +502,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.177.2456",
-              "templateHash": "17290932442765009236"
+              "templateHash": "6491373150479894839"
             }
           },
           "parameters": {
@@ -2777,7 +2777,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.36.177.2456",
-                      "templateHash": "17373771195880099050"
+                      "templateHash": "16411726781263039033"
                     },
                     "description": "Creates an Azure AI Search instance."
                   },
@@ -2865,7 +2865,7 @@
                     }
                   },
                   "variables": {
-                    "searchIdentityProvider": "[if(equals(parameters('sku').name, 'free'), null(), createObject('type', 'SystemAssigned'))]"
+                    "searchIdentityProvider": "[if(equals(parameters('sku').name, 'free'), null(), createObject('type', 'UserAssigned', 'userAssignedIdentities', createObject(format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('name')))), createObject())))]"
                   },
                   "resources": [
                     {
@@ -2884,6 +2884,13 @@
                       "dependsOn": [
                         "[resourceId('Microsoft.Search/searchServices', parameters('name'))]"
                       ]
+                    },
+                    {
+                      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                      "apiVersion": "2023-01-31",
+                      "name": "[format('{0}-identity', parameters('name'))]",
+                      "location": "[parameters('location')]",
+                      "tags": "[parameters('tags')]"
                     },
                     {
                       "type": "Microsoft.Search/searchServices",
@@ -2906,7 +2913,10 @@
                         "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
                         "replicaCount": "[parameters('replicaCount')]",
                         "semanticSearch": "[parameters('semanticSearch')]"
-                      }
+                      },
+                      "dependsOn": [
+                        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('name')))]"
+                      ]
                     }
                   ],
                   "outputs": {
@@ -2924,7 +2934,7 @@
                     },
                     "principalId": {
                       "type": "string",
-                      "value": "[if(not(empty(variables('searchIdentityProvider'))), reference(resourceId('Microsoft.Search/searchServices', parameters('name')), '2024-06-01-preview', 'full').identity.principalId, '')]"
+                      "value": "[if(not(empty(variables('searchIdentityProvider'))), reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', format('{0}-identity', parameters('name'))), '2023-01-31').principalId, '')]"
                     },
                     "searchConnectionId": {
                       "type": "string",

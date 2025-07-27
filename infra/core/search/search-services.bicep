@@ -37,8 +37,18 @@ param replicaCount int = 1
 ])
 param semanticSearch string = 'disabled'
 
+// Create user-assigned managed identity for the search service
+resource searchIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${name}-identity'
+  location: location
+  tags: tags
+}
+
 var searchIdentityProvider = (sku.name == 'free') ? null : {
-  type: 'SystemAssigned'
+  type: 'UserAssigned'
+  userAssignedIdentities: {
+    '${searchIdentity.id}': {}
+  }
 }
 
 
@@ -96,6 +106,6 @@ resource aiServices 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' ex
 output id string = search.id
 output endpoint string = 'https://${name}.search.windows.net/'
 output name string = search.name
-output principalId string = !empty(searchIdentityProvider) ? search.identity.principalId : ''
+output principalId string = !empty(searchIdentityProvider) ? searchIdentity.properties.principalId : ''
 output searchConnectionId string = ''
 
