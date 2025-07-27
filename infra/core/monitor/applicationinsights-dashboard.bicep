@@ -1,4 +1,5 @@
 metadata description = 'Creates a dashboard for an Application Insights instance.'
+// Microsoft.Identity: This resource supports authentication via managed identities
 param name string
 param applicationInsightsName string
 param location string = resourceGroup().location

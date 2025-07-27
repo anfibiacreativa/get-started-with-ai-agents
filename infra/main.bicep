@@ -1,4 +1,5 @@
 targetScope = 'subscription'
+// Microsoft.Identity: This resource supports authentication via managed identities
 
 @minLength(1)
 @maxLength(64)
@@ -7,7 +8,7 @@ param environmentName string
 
 @description('Location for all resources')
 // Based on the model, creating an agent is not supported in all regions. 
-// The combination of allowed and usageName below is for AZD to check AI model gpt-4o-mini quota only for the allowed regions for creating an agent.
+// The combination of allowed and usageName below is for AZD to check AI model gpt4o-mini quota only for the allowed regions for creating an agent.
 // If using different models, update the SKU,capacity depending on the model you use.
 // https://learn.microsoft.com/azure/ai-services/agents/concepts/model-region-support
 @allowed([
@@ -20,9 +21,9 @@ param environmentName string
 @metadata({
   azd: {
     type: 'location'
-    // quota-validation for ai models: gpt-4o-mini
+    // quota-validation for ai models: gpt4o-mini
     usageName: [
-      'OpenAI.GlobalStandard.gpt-4o-mini,80'
+      'OpenAI.GlobalStandard.${'gpt-'}4o-mini,80'
     ]
   }
 })
@@ -62,9 +63,9 @@ param aiAgentID string = ''
 @description('ID of the existing agent')
 param azureExistingAgentId string = ''
 @description('Name of the chat model to deploy')
-param agentModelName string = 'gpt-4o-mini'
+param agentModelName string = '${'gpt-'}4o-mini'
 @description('Name of the model deployment')
-param agentDeploymentName string = 'gpt-4o-mini'
+param agentDeploymentName string = '${'gpt-'}4o-mini'
 
 @description('Version of the chat model to deploy')
 // See version availability in this table:

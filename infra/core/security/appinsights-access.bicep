@@ -1,4 +1,5 @@
 metadata description = 'Assigns MonitoringMetricsContributor role to Application Insights.'
+// Microsoft.Identity: This resource supports authentication via managed identities
 param appInsightsName string
 param principalId string
 @allowed([

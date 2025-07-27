@@ -1,4 +1,5 @@
 metadata description = 'Creates an Azure Cognitive Services instance.'
+// Microsoft.Identity: This resource supports authentication via managed identities
 param aiServiceName string
 param aiProjectName string
 param location string = resourceGroup().location

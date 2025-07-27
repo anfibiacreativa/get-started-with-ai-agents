@@ -1,4 +1,5 @@
 metadata description = 'Creates a container app in an Azure Container App environment.'
+// Microsoft.Identity: This resource supports authentication via managed identities
 param name string
 param location string = resourceGroup().location
 param tags object = {}

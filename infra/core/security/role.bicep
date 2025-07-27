@@ -1,4 +1,5 @@
 metadata description = 'Creates a role assignment for a service principal.'
+// Microsoft.Identity: This resource supports authentication via managed identities
 param principalId string
 
 @allowed([
