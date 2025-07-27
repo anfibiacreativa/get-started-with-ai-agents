@@ -20,4 +20,4 @@ src/api/static/react/
 .vscode/launch.json
 
 # Bicep generated ARM templates
-*.json
+infra/**/*.json
