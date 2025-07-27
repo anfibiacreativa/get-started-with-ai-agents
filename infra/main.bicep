@@ -239,6 +239,7 @@ module monitoringMetricsContribuitorRoleAzureAIDeveloperRG 'core/security/appins
     principalType: 'ServicePrincipal'
     appInsightsName: resolvedApplicationInsightsName
     principalId: api.outputs.SERVICE_API_IDENTITY_PRINCIPAL_ID
+    identityName: '${abbrs.managedIdentityUserAssignedIdentities}api-${resourceToken}'
   }
 }
 
