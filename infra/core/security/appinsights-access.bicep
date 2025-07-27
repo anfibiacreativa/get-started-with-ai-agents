@@ -10,9 +10,17 @@ param principalId string
   ''
 ])
 param principalType string = ''
+@description('The name of the user-assigned managed identity. Optional - used for template validation.')
+param identityName string = ''
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: appInsightsName
+}
+
+// Reference to the existing user-assigned managed identity (for template validation)
+#disable-next-line no-unused-existing-resources
+resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = if (!empty(identityName)) {
+  name: identityName
 }
 
 //var monitoringMetricsPublisherRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '3913510d-42f4-4e42-8a64-420c390055eb')
