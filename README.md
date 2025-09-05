@@ -18,9 +18,11 @@ This solution creates an Azure AI Foundry project and Azure AI services. More de
 
 Instructions are provided for deployment through GitHub Codespaces, VS Code Dev Containers, and your local development environment.
 
-### Solution Architecture
+## Architecture Diagram
 
 ![Architecture diagram showing that user input is provided to the Azure Container App, which contains the app code. With user identity and resource access through managed identity, the input is used to form a response. The input and the Azure monitor are able to use the Azure resources deployed in the solution: Application Insights, Azure AI Foundry Project, Azure AI Services, Storage account, Azure Container App, and Log Analytics Workspace.](docs/images/architecture.png)
+
+### Solution Architecture
 
 The app code runs in Azure Container App to process the user input and generate a response to the user. It leverages Azure AI projects and Azure AI services, including the model and agent.
 

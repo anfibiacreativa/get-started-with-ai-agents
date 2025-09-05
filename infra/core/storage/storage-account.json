@@ -1,0 +1,241 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.37.4.10188",
+      "templateHash": "13359037276034180584"
+    },
+    "description": "Creates an Azure storage account."
+  },
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "accessTier": {
+      "type": "string",
+      "defaultValue": "Hot",
+      "allowedValues": [
+        "Cool",
+        "Hot",
+        "Premium"
+      ]
+    },
+    "allowBlobPublicAccess": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "allowCrossTenantReplication": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "allowSharedKeyAccess": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "containers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "corsRules": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "defaultToOAuthAuthentication": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "deleteRetentionPolicy": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "dnsEndpointType": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "AzureDnsZone",
+        "Standard"
+      ]
+    },
+    "files": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "kind": {
+      "type": "string",
+      "defaultValue": "StorageV2"
+    },
+    "minimumTlsVersion": {
+      "type": "string",
+      "defaultValue": "TLS1_2"
+    },
+    "queues": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "shareDeleteRetentionPolicy": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "supportsHttpsTrafficOnly": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "tables": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "networkAcls": {
+      "type": "object",
+      "defaultValue": {
+        "bypass": "AzureServices",
+        "defaultAction": "Allow"
+      }
+    },
+    "publicNetworkAccess": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ]
+    },
+    "sku": {
+      "type": "object",
+      "defaultValue": {
+        "name": "Standard_LRS"
+      }
+    }
+  },
+  "resources": [
+    {
+      "copy": {
+        "name": "storage::blobServices::container",
+        "count": "[length(parameters('containers'))]"
+      },
+      "condition": "[not(empty(parameters('containers')))]",
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}/{2}', parameters('name'), 'default', parameters('containers')[copyIndex()].name)]",
+      "properties": {
+        "publicAccess": "[if(contains(parameters('containers')[copyIndex()], 'publicAccess'), parameters('containers')[copyIndex()].publicAccess, 'None')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('name'), 'default')]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "storage::queueServices::queue",
+        "count": "[length(parameters('queues'))]"
+      },
+      "condition": "[not(empty(parameters('queues')))]",
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}/{2}', parameters('name'), 'default', parameters('queues')[copyIndex()].name)]",
+      "properties": {
+        "metadata": {}
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/queueServices', parameters('name'), 'default')]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('containers')))]",
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'default')]",
+      "properties": {
+        "cors": {
+          "corsRules": "[parameters('corsRules')]"
+        },
+        "deleteRetentionPolicy": "[parameters('deleteRetentionPolicy')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('files')))]",
+      "type": "Microsoft.Storage/storageAccounts/fileServices",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'default')]",
+      "properties": {
+        "cors": {
+          "corsRules": "[parameters('corsRules')]"
+        },
+        "shareDeleteRetentionPolicy": "[parameters('shareDeleteRetentionPolicy')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('queues')))]",
+      "type": "Microsoft.Storage/storageAccounts/queueServices",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'default')]",
+      "properties": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+      ]
+    },
+    {
+      "condition": "[not(empty(parameters('tables')))]",
+      "type": "Microsoft.Storage/storageAccounts/tableServices",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/{1}', parameters('name'), 'default')]",
+      "properties": {},
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "kind": "[parameters('kind')]",
+      "sku": "[parameters('sku')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "accessTier": "[parameters('accessTier')]",
+        "allowBlobPublicAccess": "[parameters('allowBlobPublicAccess')]",
+        "allowCrossTenantReplication": "[parameters('allowCrossTenantReplication')]",
+        "allowSharedKeyAccess": "[parameters('allowSharedKeyAccess')]",
+        "defaultToOAuthAuthentication": "[parameters('defaultToOAuthAuthentication')]",
+        "dnsEndpointType": "[parameters('dnsEndpointType')]",
+        "minimumTlsVersion": "[parameters('minimumTlsVersion')]",
+        "networkAcls": "[parameters('networkAcls')]",
+        "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
+        "supportsHttpsTrafficOnly": "[parameters('supportsHttpsTrafficOnly')]"
+      }
+    }
+  ],
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('name'))]"
+    },
+    "name": {
+      "type": "string",
+      "value": "[parameters('name')]"
+    },
+    "primaryEndpoints": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('name')), '2023-01-01').primaryEndpoints]"
+    }
+  }
+}
