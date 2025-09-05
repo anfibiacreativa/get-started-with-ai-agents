@@ -7,6 +7,9 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-12-01-previ
   name: name
   location: location
   tags: tags
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: any({
     retentionInDays: 30
     features: {
