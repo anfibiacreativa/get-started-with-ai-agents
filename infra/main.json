@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "6681513947573050442"
+      "templateHash": "13630360722369581638"
     }
   },
   "parameters": {
@@ -502,7 +502,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "8617745645850478514"
+              "templateHash": "12917132964445855734"
             }
           },
           "parameters": {
@@ -905,7 +905,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "17252436331293272321"
+                      "templateHash": "5048083109330752688"
                     },
                     "description": "Creates a Log Analytics workspace."
                   },
@@ -925,7 +925,7 @@
                   "resources": [
                     {
                       "type": "Microsoft.OperationalInsights/workspaces",
-                      "apiVersion": "2021-12-01-preview",
+                      "apiVersion": "2023-09-01",
                       "name": "[parameters('name')]",
                       "location": "[parameters('location')]",
                       "tags": "[parameters('tags')]",
@@ -3041,7 +3041,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "17252436331293272321"
+              "templateHash": "5048083109330752688"
             },
             "description": "Creates a Log Analytics workspace."
           },
@@ -3061,7 +3061,7 @@
           "resources": [
             {
               "type": "Microsoft.OperationalInsights/workspaces",
-              "apiVersion": "2021-12-01-preview",
+              "apiVersion": "2023-09-01",
               "name": "[parameters('name')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('tags')]",
